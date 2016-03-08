@@ -229,7 +229,6 @@
        */
       scope.toggleCheatSheet = toggleCheatSheet;
 
-
       /**
        * Holds references to the different scopes that have bound hotkeys
        * attached.  This is useful to catch when the scopes are `$destroy`d and
@@ -239,8 +238,8 @@
        */
       var boundScopes = {};
 
-      if (this.useNgRoute) {
-        $rootScope.$on('$routeChangeSuccess', function (event, route) {
+      var _routeChanged = function(route) {
+        if (this.useNgRoute) {
           purgeHotkeys();
 
           if (route && route.hotkeys) {
@@ -259,10 +258,16 @@
               _add.apply(this, hotkey);
             });
           }
-        });
-      }
+        }
+      }.bind(this);
 
+      $rootScope.$on('$routeChangeSuccess', function (event, route) {
+        _routeChanged(route);
+      });
 
+      $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+        _routeChanged(toState);
+      });
 
       // Auto-create a help menu:
       if (this.includeCheatSheet) {
@@ -1050,7 +1055,7 @@
     }
 
     function _belongsTo(element, ancestor) {
-        if (element === document) {
+        if (element === null || element === document) {
             return false;
         }
 
