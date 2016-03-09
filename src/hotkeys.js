@@ -441,7 +441,7 @@
       function _del (hotkey) {
         var combo = (hotkey instanceof Hotkey) ? hotkey.combo : hotkey;
 
-        Mousetrap.unbind(combo);
+        Mousetrap.unbind(combo, hotkey.action);
 
         if (angular.isArray(combo)) {
           var retStatus = true;
@@ -506,19 +506,20 @@
        * Binds the hotkey to a particular scope.  Useful if the scope is
        * destroyed, we can automatically destroy the hotkey binding.
        *
-       * @param  {Object} scope The scope to bind to
+       * @param  {Object} boundScope The scope to bind to
        */
-      function bindTo (scope) {
+      function bindTo (boundScope) {
         // Only initialize once to allow multiple calls for same scope.
-        if (!(scope.$id in boundScopes)) {
+        if (!(boundScope.$id in boundScopes)) {
 
           // Add the scope to the list of bound scopes
-          boundScopes[scope.$id] = [];
+          boundScopes[boundScope.$id] = [];
+          boundScope.hotkeys = [];
 
-          scope.$on('$destroy', function () {
-            var i = boundScopes[scope.$id].length;
+          boundScope.$on('$destroy', function () {
+            var i = boundScopes[boundScope.$id].length;
             while (i--) {
-              _del(boundScopes[scope.$id].pop());
+              _del(boundScopes[boundScope.$id].pop());
             }
           });
         }
@@ -528,13 +529,20 @@
           add: function (args) {
             var hotkey;
 
+            // Set the global scope context to the current bound scope instead.
+            var globalScope = scope;
+            scope = boundScope;
+
             if (arguments.length > 1) {
               hotkey = _add.apply(this, arguments);
             } else {
               hotkey = _add(args);
             }
 
-            boundScopes[scope.$id].push(hotkey);
+            // Restore the original global scope.
+            scope = globalScope;
+
+            boundScopes[boundScope.$id].push(hotkey);
             return this;
           }
         };
