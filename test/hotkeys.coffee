@@ -276,20 +276,19 @@ describe 'Angular Hotkeys', ->
     .add('b', 'description for b', () ->)
     .add('c', 'description for c', () ->)
 
-
-    expect(hotkeys.get('w').combo).toEqual ['w', 'e', 's']
-    expect(hotkeys.get('e').combo).toEqual ['w', 'e', 's']
-    expect(hotkeys.get('a').combo).toEqual ['a']
-    expect(hotkeys.get('b').combo).toEqual ['b']
-    expect(hotkeys.get('c').combo).toEqual ['c']
+    expect(hotkeys.get('w', scope).combo).toEqual ['w', 'e', 's']
+    expect(hotkeys.get('e', scope).combo).toEqual ['w', 'e', 's']
+    expect(hotkeys.get('a', scope).combo).toEqual ['a']
+    expect(hotkeys.get('b', scope).combo).toEqual ['b']
+    expect(hotkeys.get('c', scope).combo).toEqual ['c']
 
     scope.$destroy()
-    expect(hotkeys.get('w')).toBe false
-    expect(hotkeys.get('e')).toBe false
-    expect(hotkeys.get('s')).toBe false
-    expect(hotkeys.get('a')).toBe false
-    expect(hotkeys.get('b')).toBe false
-    expect(hotkeys.get('c')).toBe false
+    expect(hotkeys.get('w', scope)).toBe false
+    expect(hotkeys.get('e', scope)).toBe false
+    expect(hotkeys.get('s', scope)).toBe false
+    expect(hotkeys.get('a', scope)).toBe false
+    expect(hotkeys.get('b', scope)).toBe false
+    expect(hotkeys.get('c', scope)).toBe false
 
   it 'should allow multiple calls to bindTo for same scope and still be auto-destroying', ->
     hotkeys.bindTo(scope)
@@ -309,19 +308,19 @@ describe 'Angular Hotkeys', ->
     .add('c', 'description for c', () ->)
 
 
-    expect(hotkeys.get('w').combo).toEqual ['w', 'e', 's']
-    expect(hotkeys.get('e').combo).toEqual ['w', 'e', 's']
-    expect(hotkeys.get('a').combo).toEqual ['a']
-    expect(hotkeys.get('b').combo).toEqual ['b']
-    expect(hotkeys.get('c').combo).toEqual ['c']
+    expect(hotkeys.get('w', scope).combo).toEqual ['w', 'e', 's']
+    expect(hotkeys.get('e', scope).combo).toEqual ['w', 'e', 's']
+    expect(hotkeys.get('a', scope).combo).toEqual ['a']
+    expect(hotkeys.get('b', scope).combo).toEqual ['b']
+    expect(hotkeys.get('c', scope).combo).toEqual ['c']
 
     scope.$destroy()
-    expect(hotkeys.get('w')).toBe false
-    expect(hotkeys.get('e')).toBe false
-    expect(hotkeys.get('s')).toBe false
-    expect(hotkeys.get('a')).toBe false
-    expect(hotkeys.get('b')).toBe false
-    expect(hotkeys.get('c')).toBe false
+    expect(hotkeys.get('w', scope)).toBe false
+    expect(hotkeys.get('e', scope)).toBe false
+    expect(hotkeys.get('s', scope)).toBe false
+    expect(hotkeys.get('a', scope)).toBe false
+    expect(hotkeys.get('b', scope)).toBe false
+    expect(hotkeys.get('c', scope)).toBe false
 
   it 'should support pause/unpause for temporary disabling of hotkeys', ->
     executed = false
