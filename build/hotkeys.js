@@ -444,7 +444,8 @@
        * @param  {mixed} hotkey   Either the bound key or an instance of Hotkey
        * @return {boolean}        true if successful
        */
-      function _del (hotkey) {
+      function _del (hotkey, boundScope) {
+        boundScope = boundScope || scope;
         var combo = (hotkey instanceof Hotkey) ? hotkey.combo : hotkey;
 
         Mousetrap.unbind(combo, hotkey.action);
@@ -453,27 +454,27 @@
           var retStatus = true;
           var i = combo.length;
           while (i--) {
-            retStatus = _del(combo[i]) && retStatus;
+            retStatus = _del(combo[i], boundScope) && retStatus;
           }
           return retStatus;
         } else {
-          var index = scope.hotkeys.indexOf(_get(combo));
+          var index = boundScope.hotkeys.indexOf(_get(combo, boundScope));
 
           if (index > -1) {
             // if the combo has other combos bound, don't unbind the whole thing, just the one combo:
-            if (scope.hotkeys[index].combo.length > 1) {
-              scope.hotkeys[index].combo.splice(scope.hotkeys[index].combo.indexOf(combo), 1);
+            if (boundScope.hotkeys[index].combo.length > 1) {
+              boundScope.hotkeys[index].combo.splice(boundScope.hotkeys[index].combo.indexOf(combo), 1);
             } else {
 
               // remove hotkey from bound scopes
-              angular.forEach(boundScopes, function (boundScope) {
-                var scopeIndex = boundScope.indexOf(scope.hotkeys[index]);
+              angular.forEach(boundScopes, function (otherBoundScope) {
+                var scopeIndex = otherBoundScope.indexOf(boundScope.hotkeys[index]);
                 if (scopeIndex !== -1) {
-                    boundScope.splice(scopeIndex, 1);
+                    otherBoundScope.splice(scopeIndex, 1);
                 }
               });
 
-              scope.hotkeys.splice(index, 1);
+              boundScope.hotkeys.splice(index, 1);
             }
             return true;
           }
@@ -489,16 +490,18 @@
        * @param  {[string]} [combo]  the key the Hotkey is bound to. Returns all key bindings if no key is passed
        * @return {Hotkey}          The Hotkey object
        */
-      function _get (combo) {
+      function _get (combo, boundScope) {
+        // Use either the given scope or the global scope.
+        boundScope = boundScope || scope;
 
         if (!combo) {
-          return scope.hotkeys;
+          return boundScope.hotkeys;
         }
 
         var hotkey;
 
-        for (var i = 0; i < scope.hotkeys.length; i++) {
-          hotkey = scope.hotkeys[i];
+        for (var i = 0; i < boundScope.hotkeys.length; i++) {
+          hotkey = boundScope.hotkeys[i];
 
           if (hotkey.combo.indexOf(combo) > -1) {
             return hotkey;
@@ -525,7 +528,7 @@
           boundScope.$on('$destroy', function () {
             var i = boundScopes[boundScope.$id].length;
             while (i--) {
-              _del(boundScopes[boundScope.$id].pop());
+              _del(boundScopes[boundScope.$id].pop(), boundScope);
             }
           });
         }
@@ -633,7 +636,9 @@
 
         // remove the hotkey if the directive is destroyed:
         el.bind('$destroy', function() {
-          angular.forEach(keys, hotkeys.del);
+          angular.forEach(keys, function(key) {
+            hotkeys.del(key);
+          });
         });
       }
     };
